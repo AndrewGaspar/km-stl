@@ -1,0 +1,5 @@
+#pragma once
+
+#ifndef _KSTD
+#define _KSTD std
+#endif
