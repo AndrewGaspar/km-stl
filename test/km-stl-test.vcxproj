@@ -166,6 +166,11 @@
     </ClCompile>
     <ClCompile Include="utilitytest.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\inc\kstddef" />
+    <None Include="..\inc\type_traits" />
+    <None Include="..\inc\utility" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

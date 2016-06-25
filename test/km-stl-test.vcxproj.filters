@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Library Under Test">
+      <UniqueIdentifier>{a6bfb6bc-273d-480e-97ae-239408de51b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -29,5 +32,16 @@
     <ClCompile Include="utilitytest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\inc\kstddef">
+      <Filter>Library Under Test</Filter>
+    </None>
+    <None Include="..\inc\type_traits">
+      <Filter>Library Under Test</Filter>
+    </None>
+    <None Include="..\inc\utility">
+      <Filter>Library Under Test</Filter>
+    </None>
   </ItemGroup>
 </Project>
