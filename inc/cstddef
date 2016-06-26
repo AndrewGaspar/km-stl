@@ -1,0 +1,9 @@
+#pragma once
+
+#include "kstddef"
+#include <stddef.h>
+
+namespace _KSTD
+{
+    using ::ptrdiff_t;
+}

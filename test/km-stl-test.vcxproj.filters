@@ -24,12 +24,27 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\inc\memory">
+      <Filter>Library Under Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\iterator">
+      <Filter>Library Under Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\cstddef">
+      <Filter>Library Under Test</Filter>
+    </ClInclude>
+    <ClInclude Include="StateTracking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utilitytest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="memorytest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
