@@ -16,6 +16,9 @@
     <Filter Include="Library Under Test">
       <UniqueIdentifier>{a6bfb6bc-273d-480e-97ae-239408de51b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library Under Test\details">
+      <UniqueIdentifier>{1613b185-8713-4513-96b9-90556ad30cec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -36,6 +39,21 @@
     <ClInclude Include="StateTracking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\inc\details\utility">
+      <Filter>Library Under Test\details</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\details\remove_reference">
+      <Filter>Library Under Test\details</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\details\iterator">
+      <Filter>Library Under Test\details</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\functional">
+      <Filter>Library Under Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\details\functional">
+      <Filter>Library Under Test\details</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -47,16 +65,25 @@
     <ClCompile Include="memorytest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="static_type_traits_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UniquePtrTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\inc\kstddef">
-      <Filter>Library Under Test</Filter>
-    </None>
     <None Include="..\inc\type_traits">
       <Filter>Library Under Test</Filter>
     </None>
     <None Include="..\inc\utility">
       <Filter>Library Under Test</Filter>
+    </None>
+    <None Include="..\inc\details\type_traits">
+      <Filter>Library Under Test\details</Filter>
+    </None>
+    <None Include="..\inc\details\kstddef">
+      <Filter>Library Under Test\details</Filter>
     </None>
   </ItemGroup>
 </Project>

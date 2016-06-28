@@ -1,6 +1,6 @@
 #pragma once
 
-#include "kstddef"
+#include "details\kstddef"
 #include <stddef.h>
 
 namespace _KSTD

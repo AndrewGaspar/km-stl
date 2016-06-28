@@ -1,0 +1,28 @@
+#pragma once
+
+#include "kstddef"
+
+namespace _KSTD
+{
+    namespace core
+    {
+        template<typename T = void>
+        struct less
+        {
+            constexpr bool operator()(const T& lhs, const T& rhs) const
+            {
+                return lhs < rhs;
+            }
+        };
+
+        template<>
+        struct less<void>
+        {
+            template<typename T, typename U>
+            constexpr bool operator()(T const & lhs, U const & rhs) const
+            {
+                return lhs < rhs;
+            }
+        };
+    }
+}

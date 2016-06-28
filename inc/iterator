@@ -1,48 +1,18 @@
 #pragma once
 
-#include "kstddef"
+#include "details\kstddef"
+#include "details\iterator"
 #include "cstddef"
 
 namespace _KSTD
 {
+    using core::random_access_iterator_tag;
     struct bidrectional_iterator_tag {};
     struct forward_iterator_tag {};
     struct input_iterator_tag {};
     struct output_iterator_tag {};
-    struct random_access_iterator_tag {};
 
-    template <typename Iterator> 
-    class iterator_traits
-    {
-    public:
-        using difference_type = typename Iterator::difference_type;
-        using value_type = typename Iterator::value_type;
-        using pointer = typename Iterator::pointer;
-        using reference = typename Iterator::reference;
-        using iterator_category = typename Iterator::iterator_category;
-    };
-
-    template <typename T>
-    class iterator_traits<T*>
-    {
-    public:
-        using difference_type = ptrdiff_t;
-        using value_type = T;
-        using pointer = T*;
-        using reference = T&;
-        using iterator_category = random_access_iterator_tag;
-    };
-
-    template <typename T>
-    class iterator_traits<T const *>
-    {
-    public:
-        using difference_type = ptrdiff_t;
-        using value_type = T;
-        using pointer = T const *;
-        using reference = T const &;
-        using iterator_category = random_access_iterator_tag;
-    };
+    template<typename T> using iterator_traits = core::iterator_traits<T>;
 
     template <typename C>
     __forceinline constexpr auto begin(C& c) noexcept -> decltype(auto)

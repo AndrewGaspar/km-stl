@@ -1,15 +1,17 @@
 #pragma once
 
-#include "kstddef"
-#include "iterator"
-#include "utility"
+#include "details\kstddef"
+#include "details\iterator"
+#include "details\type_traits"
+#include "details\utility"
+#include "details\functional"
 
 namespace _KSTD
 {
     namespace details
     {
         template<typename It>
-        using it_value_t = typename iterator_traits<It>::value_type;
+        using it_value_t = typename core::iterator_traits<It>::value_type;
     }
 
     template <class T> 
@@ -75,7 +77,7 @@ namespace _KSTD
     __forceinline ForwardIterator uninitialized_move(InputIterator first, InputIterator last, ForwardIterator result) noexcept
     {
         while (first != last) 
-            ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(move(*first++));
+            ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(core::move(*first++));
 
         return result;
     }
@@ -84,7 +86,7 @@ namespace _KSTD
     __forceinline ForwardIterator uninitialized_move_n(InputIterator first, Size n, ForwardIterator result) noexcept
     {
         while (n-- > 0)
-            ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(move(*first++));
+            ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(core::move(*first++));
 
         return result;
     }
@@ -119,5 +121,262 @@ namespace _KSTD
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>;
 
         return first;
+    }
+
+    template<typename T>
+    struct default_delete
+    {
+        constexpr default_delete() noexcept = default;
+
+        template<typename U>
+        default_delete(core::enable_if_t<core::is_convertible<U*, T*>::value, default_delete<U>> const &) noexcept { }
+
+        void operator()(T* ptr) const
+        {
+            delete ptr;
+        }
+    };
+
+    template<typename T>
+    struct default_delete<T[]>
+    {
+        constexpr default_delete() noexcept = default;
+
+        template<typename U>
+        default_delete(core::enable_if_t<core::is_convertible<U(*)[], T(*)[]>::value, default_delete<U>> const &) noexcept { }
+
+        template<typename U>
+        void operator()(U* ptr) const
+        {
+            delete[] ptr;
+        }
+    };
+
+    template<typename T, typename D = default_delete<T>>
+    class unique_ptr
+    {
+    public:
+        using element_type = T;
+        using deleter_type = D;
+        using pointer = element_type*;
+
+    private:
+        pointer m_ptr = nullptr;
+        deleter_type m_del;
+
+    public:
+        constexpr unique_ptr() noexcept : m_del() { }
+
+        explicit unique_ptr(pointer p) noexcept : m_ptr(p), m_del() { }
+
+        template<typename Destructor>
+        unique_ptr(pointer p, Destructor&& d) noexcept : m_ptr(p), m_del(forward<Destructor>(d)) { }
+
+        unique_ptr(unique_ptr&& u) noexcept : m_ptr(u.m_ptr), m_del(move(u.m_del))
+        {
+            u.m_ptr = nullptr;
+        }
+
+        template<typename U, typename E>
+        unique_ptr(unique_ptr<U, E>&& u) : m_ptr(u.m_ptr), m_del(move(u.m_del))
+        {
+            u.m_ptr = nullptr;
+        }
+
+        ~unique_ptr()
+        {
+            reset();
+        }
+
+        unique_ptr& operator=(unique_ptr&& u) noexcept
+        {
+            reset(u.release());
+            m_del = move(u.m_del);
+
+            return *this;
+        }
+
+        template<typename U, typename E>
+        unique_ptr& operator=(unique_ptr<U, E>&& u) noexcept
+        {
+            reset(u.release());
+            m_del = move(u.m_del);
+
+            return *this;
+        }
+
+        unique_ptr& operator=(nullptr_t) noexcept
+        {
+            reset();
+        }
+
+        core::add_lvalue_reference_t<T> operator*() const noexcept
+        {
+            return *get();
+        }
+
+        pointer operator->() const noexcept
+        {
+            return get();
+        }
+
+        pointer get() const noexcept
+        {
+            return m_ptr;
+        }
+
+        deleter_type& get_deleter() noexcept
+        {
+            return m_del;
+        }
+
+        deleter_type const & get_deleter() const noexcept
+        {
+            return m_del;
+        }
+
+        explicit operator bool() const noexcept
+        {
+            return m_ptr != nullptr;
+        }
+
+        pointer release() noexcept
+        {
+            auto tmp = m_ptr;
+            m_ptr = nullptr;
+            return tmp;
+        }
+
+        void reset(pointer p = pointer()) noexcept
+        {
+            if (*this)
+            {
+                get_deleter()(get());
+            }
+
+            m_ptr = p;
+        }
+
+        void swap(unique_ptr& u) noexcept
+        {
+            swap(m_ptr, u.m_ptr);
+            swap(m_del, u.m_del);
+        }
+    };
+
+    template<typename T, typename D>
+    void swap(unique_ptr<T, D> & x, unique_ptr<T, D> & y) noexcept
+    {
+        x.swap(y);
+    }
+
+    template<typename T1, typename D1, typename T2, typename D2>
+    bool operator==(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    {
+        return x.get() == y.get();
+    }
+
+    template<typename T1, typename D1, typename T2, typename D2>
+    bool operator!=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    {
+        return x.get() != y.get();
+    }
+
+    template<typename T1, typename D1, typename T2, typename D2>
+    bool operator<(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    {
+        using ct = core::common_type_t<typename unique_ptr<T1, D1>::pointer, typename unique_ptr<T2, D2>::pointer>;
+
+        return core::less<ct>()(x.get(), y.get());
+    }
+
+    template<typename T1, typename D1, typename T2, typename D2>
+    bool operator<=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    {
+        return !(y < x);
+    }
+
+    template<typename T1, typename D1, typename T2, typename D2>
+    bool operator>(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    {
+        return y < x;
+    }
+
+    template<typename T1, typename D1, typename T2, typename D2>
+    bool operator>=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    {
+        return !(x < y);
+    }
+
+    template<typename T, typename D>
+    bool operator==(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    {
+        return !x;
+    }
+
+    template<typename T, typename D>
+    bool operator==(nullptr_t, unique_ptr<T, D> const & x) noexcept
+    {
+        return !x;
+    }
+
+    template<typename T, typename D>
+    bool operator!=(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    {
+        return x;
+    }
+
+    template<typename T, typename D>
+    bool operator!=(nullptr_t, unique_ptr<T, D> const & x) noexcept
+    {
+        return x;
+    }
+
+    template <class T, class D>
+    bool operator<(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    {
+        return core::less<unique_ptr<T, D>::pointer>()(x.get(), nullptr);
+    }
+
+    template <class T, class D>
+    bool operator<(nullptr_t, const unique_ptr<T, D>& x) noexcept
+    {
+        return core::less<unique_ptr<T, D>::pointer>()(nullptr, x.get());
+    }
+
+    template <class T, class D>
+    bool operator<=(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    {
+        return !(nullptr < x);
+    }
+
+    template <class T, class D>
+    bool operator<=(nullptr_t, const unique_ptr<T, D>& x) noexcept
+    {
+        return !(x < nullptr);
+    }
+
+    template <class T, class D>
+    bool operator>(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    {
+        return nullptr < x;
+    }
+
+    template <class T, class D>
+    bool operator>(nullptr_t, unique_ptr<T, D> const & x) noexcept
+    {
+        return x < nullptr
+    }
+
+    template <class T, class D>
+    bool operator>=(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    {
+        return !(x < nullptr);
+    }
+
+    template <class T, class D>
+    bool operator>=(nullptr_t, unique_ptr<T, D> const& x) noexcept
+    {
+        return !(nullptr < x);
     }
 }

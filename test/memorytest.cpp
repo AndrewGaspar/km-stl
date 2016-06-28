@@ -3,6 +3,7 @@
 
 #include "StateTracking.h"
 #include "..\inc\memory"
+#include "..\inc\iterator"
 
 namespace tf = Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace tf;
@@ -12,10 +13,6 @@ namespace kmstltest
     TEST_CLASS(MemoryTests)
     {
     public:
-        struct Range
-        {
-
-        };
 
         TEST_METHOD(UninitializedCopy)
         {

@@ -1,0 +1,9 @@
+#pragma once
+
+#include "details\kstddef"
+#include "details\functional"
+
+namespace _KSTD
+{
+    template<typename T> using less = core::less<T>;
+}

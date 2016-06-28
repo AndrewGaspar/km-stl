@@ -1,12 +1,99 @@
 #pragma once
 
-#include "kstddef"
+#include "details\kstddef"
+#include "details\type_traits"
 
 namespace _KSTD
 {
-    template<typename T> struct remove_reference { using type = T; };
-    template<typename T> struct remove_reference<T&> { using type = T; };
-    template<typename T> struct remove_reference<T&&> { using type = T; };
+    template<typename T, T v> using integral_constant = core::integral_constant<T, v>;
+    template<bool B> using bool_constant = core::bool_constant<B>;
 
-    template<typename T> using remove_reference_t = typename remove_reference<T>::type;
+    using core::true_type;
+    using core::false_type;
+
+#pragma region Tests
+
+    template<typename T, typename U> struct is_same : false_type { };
+    template<typename T>             struct is_same<T, T> : true_type { };
+
+    template<typename T> using is_array = core::is_array<T>;
+
+#pragma endregion Tests
+
+#pragma region ChangeModifiers
+
+    template<typename T> using remove_reference = core::remove_reference<T>;
+    template<typename T> using remove_reference_t = core::remove_reference_t<T>;
+    
+    template<typename T> using add_lvalue_reference = core::add_lvalue_reference<T>;
+    template<typename T> using add_lvalue_reference_t = core::add_lvalue_reference_t<T>;
+    
+    template<typename T> using add_rvalue_reference = core::add_rvalue_reference<T>;
+    template<typename T> using add_rvalue_reference_t = core::add_rvalue_reference_t<T>;
+
+    template<typename T> using remove_extent = core::remove_extent<T>;
+    template<typename T> using remove_extent_t = core::remove_extent_t<T>;
+
+    template<typename T> using remove_const = core::remove_const<T>;
+    template<typename T> using remove_const_t = core::remove_const_t<T>;
+    template<typename T> using remove_volatile = core::remove_volatile<T>;
+    template<typename T> using remove_volatile_t = core::remove_volatile_t<T>;
+    template<typename T> using remove_cv = core::remove_cv<T>;
+    template<typename T> using remove_cv_t = core::remove_cv_t<T>;
+
+    template<typename T> using add_pointer = core::add_pointer<T>;
+    template<typename T> using add_pointer_t = core::add_pointer_t<T>;
+
+#pragma endregion ChangeModifiers
+
+    template<bool B, typename T> using enable_if = core::enable_if<B, T>;
+    template<bool B, typename T> using enable_if_t = core::enable_if_t<B, T>;
+
+    template<bool B, typename T, typename F> using conditional = core::conditional<B, T, F>;
+    template<bool B, typename T, typename F> using conditional_t = core::conditional_t<B, T, F>;
+
+#pragma region IsConstructibleAssignable
+    using core::is_constructible;
+
+    template<typename T, typename... Args>
+    using is_trivially_constructible = bool_constant<__is_trivially_constructible(T, Args...)>;
+
+    template<typename T, typename... Args>
+    using is_nothrow_constructible = bool_constant<__is_nothrow_constructible(T, Args...)>;
+
+    template<typename T> using is_move_constructible = core::is_move_constructible<T>;
+
+    template<typename T>
+    using is_trivially_move_constructible = is_trivially_constructible<T, add_rvalue_reference_t<T>>;
+
+    template<typename T>
+    using is_nothrow_move_constructible = is_nothrow_constructible<T, add_rvalue_reference_t<T>>;
+
+    template<typename From, typename To> using is_assignable = core::is_assignable<From, To>;
+
+    template<typename T, typename U>
+    using is_trivially_assignable = bool_constant<__is_trivially_assignable(T, U)>;
+
+    template<typename T, typename U>
+    using is_nothrow_assignable = bool_constant<__is_trivially_assignable(T, U)>;
+
+    template<typename T> using is_move_assignable = core::is_move_assignable<T>;
+
+    template<typename T>
+    using is_trivially_move_assignable = is_trivially_assignable<add_lvalue_reference_t<T>, add_rvalue_reference_t<T>>;
+
+    template<typename T>
+    using is_nothrow_move_assignable = is_nothrow_assignable<add_lvalue_reference_t<T>, add_rvalue_reference_t<T>>;
+
+    template<typename From, typename To> using is_convertible = core::is_convertible<From, To>;
+
+    template<typename T> using is_function = core::is_function<T>;
+
+#pragma endregion IsConstructibleAssignable
+
+    template<typename T> using decay = core::decay<T>;
+    template<typename T> using decay_t = core::decay_t<T>;
+
+    template<typename... T> using common_type = core::common_type<T...>;
+    template<typename... T> using common_type_t = core::common_type_t<T...>;
 }

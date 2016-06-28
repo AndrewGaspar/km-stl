@@ -155,6 +155,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\cstddef" />
+    <ClInclude Include="..\inc\details\functional" />
+    <ClInclude Include="..\inc\details\iterator" />
+    <ClInclude Include="..\inc\details\remove_reference" />
+    <ClInclude Include="..\inc\details\utility" />
+    <ClInclude Include="..\inc\functional" />
     <ClInclude Include="..\inc\iterator" />
     <ClInclude Include="..\inc\memory" />
     <ClInclude Include="StateTracking.h" />
@@ -163,16 +168,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="memorytest.cpp" />
+    <ClCompile Include="static_type_traits_test.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="UniquePtrTest.cpp" />
     <ClCompile Include="utilitytest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\inc\kstddef" />
+    <None Include="..\inc\details\kstddef" />
+    <None Include="..\inc\details\type_traits" />
     <None Include="..\inc\type_traits" />
     <None Include="..\inc\utility" />
   </ItemGroup>
