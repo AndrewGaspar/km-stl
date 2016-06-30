@@ -15,49 +15,49 @@ namespace _KSTD
     template<typename T> using iterator_traits = core::iterator_traits<T>;
 
     template <typename C>
-    __forceinline constexpr auto begin(C& c) noexcept -> decltype(auto)
+    constexpr auto begin(C& c) noexcept -> decltype(auto)
     {
         return c.begin();
     }
 
     template <typename C>
-    __forceinline constexpr auto begin(C const& c) noexcept -> decltype(auto)
+    constexpr auto begin(C const& c) noexcept -> decltype(auto)
     {
         return c.begin();
     }
 
     template <typename T, std::size_t N>
-    __forceinline constexpr T* begin(T(&array)[N]) noexcept
+    constexpr T* begin(T(&array)[N]) noexcept
     {
         return array;
     }
 
     template <typename C>
-    __forceinline constexpr auto cbegin(C const& c) noexcept -> decltype(auto)
+    constexpr auto cbegin(C const& c) noexcept -> decltype(auto)
     {
         return begin(c);
     }
 
     template <typename C>
-    __forceinline constexpr auto end(C& c) noexcept -> decltype(auto)
+    constexpr auto end(C& c) noexcept -> decltype(auto)
     {
         return c.end();
     }
 
     template <typename C>
-    __forceinline constexpr auto end(C const& c) noexcept -> decltype(auto)
+    constexpr auto end(C const& c) noexcept -> decltype(auto)
     {
         return c.end();
     }
 
     template <typename T, std::size_t N>
-    __forceinline constexpr T* end(T(&array)[N]) noexcept
+    constexpr T* end(T(&array)[N]) noexcept
     {
         return array + N;
     }
 
     template <typename C>
-    __forceinline constexpr auto cend(const C& c) noexcept -> decltype(auto)
+    constexpr auto cend(const C& c) noexcept -> decltype(auto)
     {
         return end(c);
     }

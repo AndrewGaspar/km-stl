@@ -15,13 +15,13 @@ namespace _KSTD
     }
 
     template <class T> 
-    __forceinline T* addressof(T& r) noexcept
+    T* addressof(T& r) noexcept
     {
         return &r;
     }
 
     template <class InputIterator, class ForwardIterator>
-    __forceinline ForwardIterator uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator result) noexcept
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(*first++);
@@ -30,7 +30,7 @@ namespace _KSTD
     }
 
     template <class InputIterator, class Size, class ForwardIterator>
-    __forceinline ForwardIterator uninitialized_copy_n(InputIterator first, Size n, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_copy_n(InputIterator first, Size n, ForwardIterator result) noexcept
     {
         while (n-- > 0) ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(*first++);
 
@@ -38,14 +38,14 @@ namespace _KSTD
     }
 
     template <class ForwardIterator, class T>
-    __forceinline void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x) noexcept
+    void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x) noexcept
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>(x);
     }
 
     template <class ForwardIterator, class Size, class T>
-    __forceinline ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T& x) noexcept
+    ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T& x) noexcept
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>(x);
@@ -54,19 +54,19 @@ namespace _KSTD
     }
 
     template<class T>
-    __forceinline void destroy_at(T* location) noexcept
+    void destroy_at(T* location) noexcept
     {
         location->~T();
     }
 
     template <class ForwardIterator>
-    __forceinline void destroy(ForwardIterator first, ForwardIterator last) noexcept
+    void destroy(ForwardIterator first, ForwardIterator last) noexcept
     {
         while(first != last) destroy_at(addressof(*first++));
     }
 
     template <class ForwardIterator, class Size>
-    __forceinline ForwardIterator destroy_n(ForwardIterator first, Size n) noexcept
+    ForwardIterator destroy_n(ForwardIterator first, Size n) noexcept
     {
         while (n-- > 0) destroy_at(addressof(*first++));
 
@@ -74,7 +74,7 @@ namespace _KSTD
     }
 
     template <class InputIterator, class ForwardIterator>
-    __forceinline ForwardIterator uninitialized_move(InputIterator first, InputIterator last, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_move(InputIterator first, InputIterator last, ForwardIterator result) noexcept
     {
         while (first != last) 
             ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(core::move(*first++));
@@ -83,7 +83,7 @@ namespace _KSTD
     }
 
     template <class InputIterator, class Size, class ForwardIterator>
-    __forceinline ForwardIterator uninitialized_move_n(InputIterator first, Size n, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_move_n(InputIterator first, Size n, ForwardIterator result) noexcept
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(core::move(*first++));
@@ -92,14 +92,14 @@ namespace _KSTD
     }
 
     template<class ForwardIterator>
-    __forceinline void uninitialized_value_construct(ForwardIterator first, ForwardIterator last) noexcept
+    void uninitialized_value_construct(ForwardIterator first, ForwardIterator last) noexcept
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>();
     }
 
     template<class ForwardIterator, class Size>
-    __forceinline ForwardIterator uninitialized_value_construct_n(ForwardIterator first, Size n) noexcept
+    ForwardIterator uninitialized_value_construct_n(ForwardIterator first, Size n) noexcept
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>();
@@ -108,14 +108,14 @@ namespace _KSTD
     }
 
     template<class ForwardIterator>
-    __forceinline void uninitialized_default_construct(ForwardIterator first, ForwardIterator last) noexcept
+    void uninitialized_default_construct(ForwardIterator first, ForwardIterator last) noexcept
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>;
     }
 
     template<class ForwardIterator, class Size>
-    __forceinline ForwardIterator uninitialized_default_construct_n(ForwardIterator first, Size n) noexcept
+    ForwardIterator uninitialized_default_construct_n(ForwardIterator first, Size n) noexcept
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>;
