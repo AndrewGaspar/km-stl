@@ -1,0 +1,419 @@
+#pragma once
+
+#include "details\kstddef"
+#include "details\type_traits"
+#include "details\utility"
+
+namespace _KSTD
+{
+	namespace details
+	{
+		struct nullopt_init {};
+	}
+
+	struct nullopt_t 
+	{
+		constexpr nullopt_t(details::nullopt_init) { }
+
+		nullopt_t() = delete; 
+		constexpr nullopt_t(nullopt_t const &) = default;
+		constexpr nullopt_t(nullopt_t&&) = default;
+	};
+	constexpr nullopt_t nullopt{ details::nullopt_init{} };
+
+	struct in_place_t{};
+	constexpr in_place_t in_place;
+
+	template<typename T>
+	class optional
+	{
+		bool isInitialized = false;
+		alignas(T) uint8_t buf[sizeof(T)] = {};
+
+		constexpr T const * val() const noexcept
+		{
+			return static_cast<T const *>(static_cast<void const *>(buf));
+		}
+
+		T * val() noexcept
+		{
+			return static_cast<T *>(static_cast<void *>(buf));
+		}
+
+		void reset()
+		{
+			if (static_cast<bool>(*this))
+			{
+				val()->T::~T();
+				isInitialized = false;
+			}
+		}
+	public:
+		constexpr optional() noexcept { }
+		constexpr optional(nullopt_t) noexcept { }
+
+		optional(optional const & rhs)
+		{
+			if (rhs)
+			{
+				emplace(*rhs);
+			}
+		}
+
+		optional(optional&& rhs)
+		{
+			if (rhs)
+			{
+				emplace(core::move(*rhs));
+			}
+		}
+
+		constexpr optional(T const & value)
+		{
+			emplace(value);
+		}
+
+		constexpr optional(T&& value)
+		{
+			emplace(core::move(value));
+		}
+
+		template<typename... Args>
+		constexpr explicit optional(in_place_t, Args&&... args)
+		{
+			emplace(core::forward<Args>(args)...);
+		}
+
+		~optional()
+		{
+			if (!core::is_trivially_destructible<T>()) reset();
+		}
+
+		optional& operator=(nullopt_t)
+		{
+			reset();
+
+			return *this;
+		}
+
+		optional& operator=(optional const & rhs)
+		{
+			if (!rhs)
+			{
+				reset();
+				return *this;
+			}
+
+			if (!*this)
+			{
+				emplace(*rhs);
+				return *this;
+			}
+
+			**this = *rhs;
+
+			return *this;
+		}
+
+		// Note that a moved from optional still contains a value
+		optional& operator=(optional&& rhs)
+		{
+			if (!rhs)
+			{
+				reset();
+				return *this;
+			}
+
+			if (!*this)
+			{
+				emplace(core::move(*rhs));
+				return *this;
+			}
+
+			**this = core::move(*rhs);
+
+			return *this;
+		}
+
+		template<typename U>
+		core::enable_if_t<core::is_same<core::decay_t<U>, T>::value, optional&> operator=(U&& value)
+		{
+			if (*this)
+			{
+				**this = core::forward<U>(value);
+			}
+			else
+			{
+				emplace(core::forward<U>(value));
+			}
+
+			return *this;
+		}
+
+		constexpr T const* operator->() const
+		{
+			return val();
+		}
+
+		T * operator->()
+		{
+			return val();
+		}
+
+		constexpr T const & operator*() const &
+		{
+			return *val();
+		}
+
+		T & operator*() &
+		{
+			return *val();
+		}
+
+		constexpr T const && operator*() const &&
+		{
+			return core::move(*val());
+		}
+
+		T && operator*() &&
+		{
+			return core::move(*val());
+		}
+
+		constexpr explicit operator bool() const
+		{
+			return isInitialized;
+		}
+
+		template<typename U>
+		constexpr T value_or(U&& default_value) const&
+		{
+			return static_cast<bool>(*this) ? **this : static_cast<T>(core::forward<U>(default_value));
+		}
+
+		template<typename U>
+		T value_or(U&& default_value) &&
+		{
+			return static_cast<bool>(*this) ? core::move(**this) : static_cast<T>(core::forward<U>(default_value));
+		}
+
+		void swap(optional& other) noexcept
+		{
+			if (!*this && !other) return;
+
+			if (bool(*this) != bool(other))
+			{
+				optional & in = *this ? *this : other;
+				optional & un = *this ? other : *this;
+
+				un = kstd::move(in);
+				in.reset();
+
+				return;
+			}
+
+			core::swap(**this, *other);
+		}
+
+		template<typename... Args>
+		void emplace(Args&&... args) noexcept
+		{
+			reset();
+
+			new (buf) T(core::forward<Args>(args)...);
+			isInitialized = true;
+		}
+	};
+
+	template<typename T>
+	constexpr bool operator==(optional<T> const & lhs, optional<T> const & rhs)
+	{
+		return lhs && rhs ? *lhs == *rhs : bool(lhs) == bool(rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator!=(optional<T> const & lhs, optional<T> const & rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator<(optional<T> const & lhs, optional<T> const & rhs)
+	{
+		return rhs ? (lhs ? *lhs < *rhs : true) : false;
+	}
+
+	template<typename T>
+	constexpr bool operator>(optional<T> const & lhs, optional<T> const & rhs)
+	{
+		return rhs < lhs;
+	}
+
+	template<typename T>
+	constexpr bool operator<=(optional<T> const & lhs, optional<T> const & rhs)
+	{
+		return !(rhs < lhs);
+	}
+
+	template<typename T>
+	constexpr bool operator>=(optional<T> const & lhs, optional<T> const & rhs)
+	{
+		return !(lhs < rhs);
+	}
+
+	template<typename T> 
+	constexpr bool operator==(const optional<T>& lhs, nullopt_t) noexcept
+	{
+		return !lhs;
+	}
+
+	template<typename T>
+	constexpr bool operator==(nullopt_t, const optional<T>& rhs) noexcept
+	{
+		return !rhs;
+	}
+
+	template<typename T>
+	constexpr bool operator!=(const optional<T>& lhs, nullopt_t) noexcept
+	{
+		return bool(lhs);
+	}
+
+	template<typename T>
+	constexpr bool operator!=(nullopt_t, const optional<T>& rhs) noexcept
+	{
+		return bool(rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator<(optional<T> const & lhs, nullopt_t) noexcept
+	{
+		return false;
+	}
+
+	template<typename T>
+	constexpr bool operator<(nullopt_t, optional<T> const & rhs) noexcept
+	{
+		return bool(rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator>(optional<T> const & lhs, nullopt_t) noexcept
+	{
+		return bool(lhs);
+	}
+
+	template<typename T>
+	constexpr bool operator>(nullopt_t, optional<T> const & rhs) noexcept
+	{
+		return false;
+	}
+
+	template<typename T>
+	constexpr bool operator<=(optional<T> const & lhs, nullopt_t) noexcept
+	{
+		return !lhs;
+	}
+
+	template<typename T>
+	constexpr bool operator<=(nullopt_t, optional<T> const & rhs) noexcept
+	{
+		return true;
+	}
+
+	template<typename T>
+	constexpr bool operator>=(optional<T> const & lhs, nullopt_t) noexcept
+	{
+		return true;
+	}
+
+	template<typename T>
+	constexpr bool operator>=(nullopt_t, optional<T> const & rhs) noexcept
+	{
+		return !rhs;
+	}
+
+	template<typename T>
+	constexpr bool operator==(const optional<T>& lhs, T const & rhs) noexcept
+	{
+		return lhs ? *lhs == rhs : false;
+	}
+
+	template<typename T>
+	constexpr bool operator==(T const & lhs, const optional<T>& rhs) noexcept
+	{
+		return rhs == lhs;
+	}
+
+	template<typename T>
+	constexpr bool operator!=(const optional<T>& lhs, T const & rhs) noexcept
+	{
+		return !(lhs == rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator!=(T const & lhs, const optional<T>& rhs) noexcept
+	{
+		return !(lhs == rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator<(optional<T> const & lhs, T const & rhs) noexcept
+	{
+		return lhs ? *lhs < rhs : true;
+	}
+
+	template<typename T>
+	constexpr bool operator<(T const & lhs, optional<T> const & rhs) noexcept
+	{
+		return rhs ? lhs < *rhs : false;
+	}
+
+	template<typename T>
+	constexpr bool operator>(optional<T> const & lhs, T const & rhs) noexcept
+	{
+		return lhs ? *lhs > rhs : false;
+	}
+
+	template<typename T>
+	constexpr bool operator>(T const & lhs, optional<T> const & rhs) noexcept
+	{
+		return rhs ? lhs > *rhs : true;
+	}
+
+	template<typename T>
+	constexpr bool operator<=(optional<T> const & lhs, T const & rhs) noexcept
+	{
+		return !(lhs > rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator<=(T const & lhs, optional<T> const & rhs) noexcept
+	{
+		return !(lhs > rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator>=(optional<T> const & lhs, T const & rhs) noexcept
+	{
+		return !(lhs < rhs);
+	}
+
+	template<typename T>
+	constexpr bool operator>=(T const & lhs, optional<T> const & rhs) noexcept
+	{
+		return !(lhs < rhs);
+	}
+
+	template<typename T>
+	constexpr optional<core::decay_t<T>> make_optional(T&& v)
+	{
+		return optional<core::decay_t<T>>(core::forward<T>(v));
+	}
+
+	template<typename T>
+	void swap(optional<T>& lhs, optional<T>& rhs)
+	{
+		lhs.swap(rhs);
+	}
+}

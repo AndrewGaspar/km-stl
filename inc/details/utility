@@ -2,6 +2,7 @@
 
 #include "kstddef"
 #include "remove_reference"
+#include "type_traits"
 
 namespace _KSTD
 {
@@ -24,6 +25,20 @@ namespace _KSTD
         {
             return static_cast<T&&>(t);
         }
+
+		namespace details
+		{
+			template<typename T>
+			using swap_requirements = core::bool_constant<core::is_move_constructible<T>::value && core::is_move_assignable<T>::value>;
+		}
+
+		template<typename T, typename = enable_if_t<details::swap_requirements<T>::value, void>>
+		__forceinline void swap(T& a, T& b) noexcept
+		{
+			T tmp(move(a));
+			a = move(b);
+			b = move(tmp);
+		}
 
         template<typename T>
         add_rvalue_reference_t<T> declval() { }

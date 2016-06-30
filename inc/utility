@@ -11,17 +11,5 @@ namespace _KSTD
 
     using core::declval;
 
-    namespace details
-    {
-        template<typename T>
-        using swap_requirements = core::bool_constant<core::is_move_constructible<T>::value && core::is_move_assignable<T>::value>;
-    }
-
-    template<typename T, typename = core::enable_if_t<core::swap_requirements<T>::value, void>>
-    constexpr __forceinline void swap(T& a, T& b) noexcept
-    {
-        T tmp(move(a));
-        a = move(b);
-        b = move(tmp);
-    }
+	using core::swap;
 }

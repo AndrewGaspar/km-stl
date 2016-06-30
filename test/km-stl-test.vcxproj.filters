@@ -54,6 +54,12 @@
     <ClInclude Include="..\inc\details\functional">
       <Filter>Library Under Test\details</Filter>
     </ClInclude>
+    <ClInclude Include="..\inc\optional">
+      <Filter>Library Under Test</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionalToString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -69,6 +75,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UniquePtrTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="optionaltest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

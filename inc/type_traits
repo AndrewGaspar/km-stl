@@ -13,8 +13,7 @@ namespace _KSTD
 
 #pragma region Tests
 
-    template<typename T, typename U> struct is_same : false_type { };
-    template<typename T>             struct is_same<T, T> : true_type { };
+	template<typename T, typename U> using is_same = core::is_same<T, U>;
 
     template<typename T> using is_array = core::is_array<T>;
 
@@ -53,7 +52,7 @@ namespace _KSTD
     template<bool B, typename T, typename F> using conditional_t = core::conditional_t<B, T, F>;
 
 #pragma region IsConstructibleAssignable
-    using core::is_constructible;
+    template<typename T, typename... Args> using is_constructible = core::is_constructible<T, Args...>;
 
     template<typename T, typename... Args>
     using is_trivially_constructible = bool_constant<__is_trivially_constructible(T, Args...)>;
@@ -68,6 +67,8 @@ namespace _KSTD
 
     template<typename T>
     using is_nothrow_move_constructible = is_nothrow_constructible<T, add_rvalue_reference_t<T>>;
+
+	template<typename T> using is_copy_constructible = core::is_copy_constructible<T>;
 
     template<typename From, typename To> using is_assignable = core::is_assignable<From, To>;
 
@@ -84,6 +85,8 @@ namespace _KSTD
 
     template<typename T>
     using is_nothrow_move_assignable = is_nothrow_assignable<add_lvalue_reference_t<T>, add_rvalue_reference_t<T>>;
+
+	template<typename T> using is_trivially_destructible = core::is_trivially_destructible<T>;
 
     template<typename From, typename To> using is_convertible = core::is_convertible<From, To>;
 

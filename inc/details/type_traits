@@ -7,6 +7,9 @@ namespace _KSTD
 {
     namespace core
     {
+		template<typename T, typename U> struct is_same : false_type { };
+		template<typename T>             struct is_same<T, T> : true_type { };
+
         template<typename T> struct add_rvalue_reference { using type = T&&; };
         template<typename T> using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
 
@@ -33,8 +36,7 @@ namespace _KSTD
             constexpr value_type operator()() const noexcept { return value; }
         };
 
-        template<bool B>
-        using bool_constant = integral_constant<bool, B>;
+        template<bool B> using bool_constant = integral_constant<bool, B>;
 
         using false_type = bool_constant<false>;
         using true_type = bool_constant<true>;
@@ -44,12 +46,15 @@ namespace _KSTD
         template<typename T, size_t N> struct is_array<T[N]> : true_type { };
 
         template<typename T, typename... Args> using is_constructible = bool_constant<__is_constructible(T, Args...)>;
+		template<typename T> using is_copy_constructible = is_constructible<T, add_lvalue_reference_t<T const>>;
         template<typename T> using is_move_constructible = is_constructible<T, add_rvalue_reference_t<T>>;
 
         template<typename T, typename U> using is_assignable = bool_constant<__is_assignable(T, U)>;
         template<typename T> using is_move_assignable = is_assignable<add_lvalue_reference_t<T>, add_rvalue_reference_t<T>>;
 
         template<typename From, typename To> using is_convertible = bool_constant<__is_convertible_to(From, To)>;
+
+		template<typename T> using is_trivially_destructible = bool_constant<__has_trivial_destructor(T)>;
 
         template<bool B, typename T, typename F> struct conditional { using type = T; };
         template<typename T, typename F> struct conditional<false, T, F> { using type = F; };
