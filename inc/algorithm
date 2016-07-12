@@ -14,4 +14,21 @@ namespace _KSTD
 
         return outIt;
     }
+
+    template<typename InputIt, typename UnaryPredicate>
+    InputIt find_if(InputIt first, InputIt last, UnaryPredicate p)
+    {
+        for (auto it = first; it != last; it++)
+        {
+            if (p(*it)) return it;
+        }
+
+        return last;
+    }
+
+    template<typename InputIt, typename T>
+    InputIt find(InputIt first, InputIt last, const T& value)
+    {
+        return find_if(first, last, [&value](decltype(*first) const & lhs) { return lhs == value; });
+    }
 }
