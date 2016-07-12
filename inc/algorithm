@@ -1,0 +1,17 @@
+#pragma once
+
+#include "details\kstddef"
+#include "utility"
+
+namespace _KSTD
+{
+    template<typename InputIt, typename OutputIt>
+    OutputIt copy(InputIt first, InputIt last, OutputIt d_first)
+    {
+        auto it = first;
+        auto outIt = d_first;
+        while (it != last) *outIt++ = *it++;
+
+        return outIt;
+    }
+}

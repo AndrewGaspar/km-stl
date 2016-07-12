@@ -5,6 +5,9 @@
 #include "details\type_traits"
 #include "details\utility"
 #include "details\functional"
+#include "cstddef"
+
+#include "new"
 
 namespace _KSTD
 {
@@ -15,13 +18,13 @@ namespace _KSTD
     }
 
     template <class T> 
-    T* addressof(T& r) noexcept
+    T* addressof(T& r)
     {
         return &r;
     }
 
     template <class InputIterator, class ForwardIterator>
-    ForwardIterator uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator result)
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(*first++);
@@ -30,7 +33,7 @@ namespace _KSTD
     }
 
     template <class InputIterator, class Size, class ForwardIterator>
-    ForwardIterator uninitialized_copy_n(InputIterator first, Size n, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_copy_n(InputIterator first, Size n, ForwardIterator result)
     {
         while (n-- > 0) ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(*first++);
 
@@ -38,14 +41,14 @@ namespace _KSTD
     }
 
     template <class ForwardIterator, class T>
-    void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x) noexcept
+    void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x)
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>(x);
     }
 
     template <class ForwardIterator, class Size, class T>
-    ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T& x) noexcept
+    ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T& x)
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>(x);
@@ -54,19 +57,19 @@ namespace _KSTD
     }
 
     template<class T>
-    void destroy_at(T* location) noexcept
+    void destroy_at(T* location)
     {
         location->~T();
     }
 
     template <class ForwardIterator>
-    void destroy(ForwardIterator first, ForwardIterator last) noexcept
+    void destroy(ForwardIterator first, ForwardIterator last)
     {
         while(first != last) destroy_at(addressof(*first++));
     }
 
     template <class ForwardIterator, class Size>
-    ForwardIterator destroy_n(ForwardIterator first, Size n) noexcept
+    ForwardIterator destroy_n(ForwardIterator first, Size n)
     {
         while (n-- > 0) destroy_at(addressof(*first++));
 
@@ -74,7 +77,7 @@ namespace _KSTD
     }
 
     template <class InputIterator, class ForwardIterator>
-    ForwardIterator uninitialized_move(InputIterator first, InputIterator last, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_move(InputIterator first, InputIterator last, ForwardIterator result)
     {
         while (first != last) 
             ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(core::move(*first++));
@@ -83,7 +86,7 @@ namespace _KSTD
     }
 
     template <class InputIterator, class Size, class ForwardIterator>
-    ForwardIterator uninitialized_move_n(InputIterator first, Size n, ForwardIterator result) noexcept
+    ForwardIterator uninitialized_move_n(InputIterator first, Size n, ForwardIterator result)
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*result++))) details::it_value_t<ForwardIterator>(core::move(*first++));
@@ -92,14 +95,14 @@ namespace _KSTD
     }
 
     template<class ForwardIterator>
-    void uninitialized_value_construct(ForwardIterator first, ForwardIterator last) noexcept
+    void uninitialized_value_construct(ForwardIterator first, ForwardIterator last)
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>();
     }
 
     template<class ForwardIterator, class Size>
-    ForwardIterator uninitialized_value_construct_n(ForwardIterator first, Size n) noexcept
+    ForwardIterator uninitialized_value_construct_n(ForwardIterator first, Size n)
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>();
@@ -108,14 +111,14 @@ namespace _KSTD
     }
 
     template<class ForwardIterator>
-    void uninitialized_default_construct(ForwardIterator first, ForwardIterator last) noexcept
+    void uninitialized_default_construct(ForwardIterator first, ForwardIterator last)
     {
         while (first != last)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>;
     }
 
     template<class ForwardIterator, class Size>
-    ForwardIterator uninitialized_default_construct_n(ForwardIterator first, Size n) noexcept
+    ForwardIterator uninitialized_default_construct_n(ForwardIterator first, Size n)
     {
         while (n-- > 0)
             ::new (static_cast<void*>(addressof(*first++))) details::it_value_t<ForwardIterator>;
@@ -126,10 +129,10 @@ namespace _KSTD
     template<typename T>
     struct default_delete
     {
-        constexpr default_delete() noexcept = default;
+        constexpr default_delete() = default;
 
         template<typename U>
-        default_delete(core::enable_if_t<core::is_convertible<U*, T*>::value, default_delete<U>> const &) noexcept { }
+        default_delete(core::enable_if_t<core::is_convertible<U*, T*>::value, default_delete<U>> const &) { }
 
         void operator()(T* ptr) const
         {
@@ -140,10 +143,10 @@ namespace _KSTD
     template<typename T>
     struct default_delete<T[]>
     {
-        constexpr default_delete() noexcept = default;
+        constexpr default_delete() = default;
 
         template<typename U>
-        default_delete(core::enable_if_t<core::is_convertible<U(*)[], T(*)[]>::value, default_delete<U>> const &) noexcept { }
+        default_delete(core::enable_if_t<core::is_convertible<U(*)[], T(*)[]>::value, default_delete<U>> const &) { }
 
         template<typename U>
         void operator()(U* ptr) const
@@ -165,14 +168,15 @@ namespace _KSTD
         deleter_type m_del;
 
     public:
-        constexpr unique_ptr() noexcept : m_del() { }
+        constexpr unique_ptr() : m_del() { }
+        constexpr unique_ptr(nullptr_t) : m_del() { }
 
-        explicit unique_ptr(pointer p) noexcept : m_ptr(p), m_del() { }
+        explicit unique_ptr(pointer p) : m_ptr(p), m_del() { }
 
         template<typename Destructor>
-        unique_ptr(pointer p, Destructor&& d) noexcept : m_ptr(p), m_del(forward<Destructor>(d)) { }
+        unique_ptr(pointer p, Destructor&& d) : m_ptr(p), m_del(forward<Destructor>(d)) { }
 
-        unique_ptr(unique_ptr&& u) noexcept : m_ptr(u.m_ptr), m_del(move(u.m_del))
+        unique_ptr(unique_ptr&& u) : m_ptr(u.m_ptr), m_del(move(u.m_del))
         {
             u.m_ptr = nullptr;
         }
@@ -188,7 +192,7 @@ namespace _KSTD
             reset();
         }
 
-        unique_ptr& operator=(unique_ptr&& u) noexcept
+        unique_ptr& operator=(unique_ptr&& u)
         {
             reset(u.release());
             m_del = move(u.m_del);
@@ -197,7 +201,7 @@ namespace _KSTD
         }
 
         template<typename U, typename E>
-        unique_ptr& operator=(unique_ptr<U, E>&& u) noexcept
+        unique_ptr& operator=(unique_ptr<U, E>&& u)
         {
             reset(u.release());
             m_del = move(u.m_del);
@@ -205,49 +209,49 @@ namespace _KSTD
             return *this;
         }
 
-        unique_ptr& operator=(nullptr_t) noexcept
+        unique_ptr& operator=(nullptr_t)
         {
             reset();
         }
 
-        core::add_lvalue_reference_t<T> operator*() const noexcept
+        core::add_lvalue_reference_t<T> operator*() const
         {
             return *get();
         }
 
-        pointer operator->() const noexcept
+        pointer operator->() const
         {
             return get();
         }
 
-        pointer get() const noexcept
+        pointer get() const
         {
             return m_ptr;
         }
 
-        deleter_type& get_deleter() noexcept
+        deleter_type& get_deleter()
         {
             return m_del;
         }
 
-        deleter_type const & get_deleter() const noexcept
+        deleter_type const & get_deleter() const
         {
             return m_del;
         }
 
-        explicit operator bool() const noexcept
+        explicit operator bool() const
         {
             return m_ptr != nullptr;
         }
 
-        pointer release() noexcept
+        pointer release()
         {
             auto tmp = m_ptr;
             m_ptr = nullptr;
             return tmp;
         }
 
-        void reset(pointer p = pointer()) noexcept
+        void reset(pointer p = pointer())
         {
             if (*this)
             {
@@ -257,7 +261,7 @@ namespace _KSTD
             m_ptr = p;
         }
 
-        void swap(unique_ptr& u) noexcept
+        void swap(unique_ptr& u)
         {
             swap(m_ptr, u.m_ptr);
             swap(m_del, u.m_del);
@@ -265,25 +269,25 @@ namespace _KSTD
     };
 
     template<typename T, typename D>
-    void swap(unique_ptr<T, D> & x, unique_ptr<T, D> & y) noexcept
+    void swap(unique_ptr<T, D> & x, unique_ptr<T, D> & y)
     {
         x.swap(y);
     }
 
     template<typename T1, typename D1, typename T2, typename D2>
-    bool operator==(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    bool operator==(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y)
     {
         return x.get() == y.get();
     }
 
     template<typename T1, typename D1, typename T2, typename D2>
-    bool operator!=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    bool operator!=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y)
     {
         return x.get() != y.get();
     }
 
     template<typename T1, typename D1, typename T2, typename D2>
-    bool operator<(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    bool operator<(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y)
     {
         using ct = core::common_type_t<typename unique_ptr<T1, D1>::pointer, typename unique_ptr<T2, D2>::pointer>;
 
@@ -291,91 +295,91 @@ namespace _KSTD
     }
 
     template<typename T1, typename D1, typename T2, typename D2>
-    bool operator<=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    bool operator<=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y)
     {
         return !(y < x);
     }
 
     template<typename T1, typename D1, typename T2, typename D2>
-    bool operator>(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    bool operator>(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y)
     {
         return y < x;
     }
 
     template<typename T1, typename D1, typename T2, typename D2>
-    bool operator>=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y) noexcept
+    bool operator>=(unique_ptr<T1, D1> const& x, unique_ptr<T2, D2> const& y)
     {
         return !(x < y);
     }
 
     template<typename T, typename D>
-    bool operator==(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    bool operator==(unique_ptr<T, D> const & x, nullptr_t)
     {
         return !x;
     }
 
     template<typename T, typename D>
-    bool operator==(nullptr_t, unique_ptr<T, D> const & x) noexcept
+    bool operator==(nullptr_t, unique_ptr<T, D> const & x)
     {
         return !x;
     }
 
     template<typename T, typename D>
-    bool operator!=(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    bool operator!=(unique_ptr<T, D> const & x, nullptr_t)
     {
         return x;
     }
 
     template<typename T, typename D>
-    bool operator!=(nullptr_t, unique_ptr<T, D> const & x) noexcept
+    bool operator!=(nullptr_t, unique_ptr<T, D> const & x)
     {
         return x;
     }
 
     template <class T, class D>
-    bool operator<(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    bool operator<(unique_ptr<T, D> const & x, nullptr_t)
     {
         return core::less<unique_ptr<T, D>::pointer>()(x.get(), nullptr);
     }
 
     template <class T, class D>
-    bool operator<(nullptr_t, const unique_ptr<T, D>& x) noexcept
+    bool operator<(nullptr_t, const unique_ptr<T, D>& x)
     {
         return core::less<unique_ptr<T, D>::pointer>()(nullptr, x.get());
     }
 
     template <class T, class D>
-    bool operator<=(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    bool operator<=(unique_ptr<T, D> const & x, nullptr_t)
     {
         return !(nullptr < x);
     }
 
     template <class T, class D>
-    bool operator<=(nullptr_t, const unique_ptr<T, D>& x) noexcept
+    bool operator<=(nullptr_t, const unique_ptr<T, D>& x)
     {
         return !(x < nullptr);
     }
 
     template <class T, class D>
-    bool operator>(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    bool operator>(unique_ptr<T, D> const & x, nullptr_t)
     {
         return nullptr < x;
     }
 
     template <class T, class D>
-    bool operator>(nullptr_t, unique_ptr<T, D> const & x) noexcept
+    bool operator>(nullptr_t, unique_ptr<T, D> const & x)
     {
         return x < nullptr
     }
 
     template <class T, class D>
-    bool operator>=(unique_ptr<T, D> const & x, nullptr_t) noexcept
+    bool operator>=(unique_ptr<T, D> const & x, nullptr_t)
     {
         return !(x < nullptr);
     }
 
     template <class T, class D>
-    bool operator>=(nullptr_t, unique_ptr<T, D> const& x) noexcept
+    bool operator>=(nullptr_t, unique_ptr<T, D> const& x)
     {
         return !(nullptr < x);
     }

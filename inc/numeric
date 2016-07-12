@@ -1,0 +1,23 @@
+#pragma once
+
+#include "details\kstddef"
+#include "utility"
+
+namespace _KSTD
+{
+    template<typename InputIt, typename T, typename BinaryOp>
+    T accumulate(InputIt first, InputIt last, T init, BinaryOp op)
+    {
+        for (auto it = first; it != last; it++) init = op(init, *it);
+
+        return init;
+    }
+
+    template<typename InputIt, typename T>
+    T accumulate(InputIt first, InputIt last, T init)
+    {
+        return accumulate(first, last, std::move(init), [](T const & a, T const & b) {
+            return a + b;
+        });
+    }
+}

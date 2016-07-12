@@ -3,6 +3,7 @@
 #include "details\kstddef"
 #include "details\type_traits"
 #include "details\utility"
+#include "cstdint"
 
 namespace _KSTD
 {

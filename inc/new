@@ -1,0 +1,31 @@
+#pragma once
+
+#include <cstdint>
+#include <stdlib.h>
+
+namespace std
+{
+    struct nothrow_t {};
+
+    constexpr nothrow_t nothrow{};
+}
+
+void * _cdecl operator new(std::size_t count, std::nothrow_t const &);
+
+void _cdecl operator delete(void* ptr, std::nothrow_t const &);
+
+void * _cdecl operator new[](std::size_t count, std::nothrow_t const &);
+
+void _cdecl operator delete[](void* ptr, std::nothrow_t const &);
+
+void _cdecl operator delete(void* ptr, std::size_t);
+
+void _cdecl operator delete[](void* ptr, std::size_t);
+
+void * _cdecl operator new(std::size_t, void* ptr);
+
+void _cdecl operator delete(void*, void*);
+
+void* _cdecl operator new[](std::size_t, void* ptr);
+
+void _cdecl operator delete[](void*, void*);

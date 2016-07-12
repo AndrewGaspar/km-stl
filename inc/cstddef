@@ -6,4 +6,5 @@
 namespace _KSTD
 {
     using ::ptrdiff_t;
+    using nullptr_t = decltype(nullptr);
 }
